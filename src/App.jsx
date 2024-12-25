@@ -4,12 +4,14 @@ import About from "./components/About";
 import Projects from "./components/Projects";
 import Contact from "./components/Contact";
 import Chatbox from "./components/Chatbox";
+import DarkModeToggle from "./components/DarkModeToggle";
 
 const App = () => {
   return (
     <div className="w-full bg-gray-50">
+      <DarkModeToggle />
       <Header />
-      <main className="flex flex-col items-center space-y-12">
+      {/* <main className="flex flex-col items-center space-y-12"> */}
         <About />
         <Projects />
         <Contact />
@@ -17,7 +19,7 @@ const App = () => {
           {/* <h1 className="text-3xl font-bold text-center mb-4">Chatbox</h1> */}
         <Chatbox />
         {/* </section> */}
-      </main>
+      {/* </main> */}
     </div>
   );
 };
