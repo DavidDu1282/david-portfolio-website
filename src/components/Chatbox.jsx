@@ -3,20 +3,50 @@ import React, { useState } from "react";
 const Chatbox = () => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const sendMessage = () => {
+  const API_URL = import.meta.env.VITE_API_URL; // Dynamically load the API URL
+
+  const sendMessage = async () => {
     if (!input.trim()) return;
 
-    setMessages([...messages, { sender: "user", text: input }]);
+    // Add user message to chat
+    const userMessage = { sender: "user", text: input };
+    setMessages((prev) => [...prev, userMessage]);
     setInput("");
+    setLoading(true);
 
-    // Simulate bot response for demo purposes
-    setTimeout(() => {
-      setMessages((prev) => [
-        ...prev,
-        { sender: "bot", text: "This is a simulated bot response." },
-      ]);
-    }, 1000);
+    try {
+      // Call the LLM backend API
+      const response = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "google:gemini-flash-experimental",
+          messages: [
+            { role: "system", content: "Respond in Pirate English." },
+            { role: "user", content: input }, // Send user input
+          ],
+        }),
+      });
+
+      const data = await response.json();
+
+      // Add bot response to chat
+      const botMessage = { sender: "bot", text: data.response };
+      setMessages((prev) => [...prev, botMessage]);
+    } catch (error) {
+      console.error("Error querying LLM:", error);
+
+      // Add an error message to chat
+      const errorMessage = {
+        sender: "bot",
+        text: "Sorry, something went wrong. Please try again later.",
+      };
+      setMessages((prev) => [...prev, errorMessage]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleKeyPress = (e) => {
@@ -48,6 +78,13 @@ const Chatbox = () => {
             </div>
           </div>
         ))}
+        {loading && (
+          <div className="flex justify-start my-2">
+            <div className="max-w-[75%] px-4 py-2 rounded-lg bg-gray-200 dark:bg-gray-700 dark:text-gray-200">
+              Typing...
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Input Section */}
@@ -59,12 +96,14 @@ const Chatbox = () => {
           placeholder="Type your message (Shift+Enter for new line, Enter to send)"
           className="flex-grow resize-none border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-200"
           rows={2}
+          disabled={loading} // Disable input while loading
         ></textarea>
         <button
           onClick={sendMessage}
           className="ml-4 px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 transition"
+          disabled={loading} // Disable button while loading
         >
-          Send
+          {loading ? "Sending..." : "Send"}
         </button>
       </div>
     </div>
