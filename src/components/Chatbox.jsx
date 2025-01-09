@@ -1,14 +1,25 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 const Chatbox = () => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [sessionId, setSessionId] = useState(null);
 
   const API_URL = import.meta.env.VITE_API_URL; // Dynamically load the API URL
 
+  // Generate or retrieve session ID on component mount
+  useEffect(() => {
+    let storedSessionId = localStorage.getItem("session_id");
+    if (!storedSessionId) {
+      storedSessionId = crypto.randomUUID(); // Generate a new UUID
+      localStorage.setItem("session_id", storedSessionId);
+    }
+    setSessionId(storedSessionId);
+  }, []);
+
   const sendMessage = async () => {
-    if (!input.trim()) return;
+    if (!input.trim() || !sessionId) return;
 
     // Add user message to chat
     const userMessage = { sender: "user", text: input };
@@ -22,11 +33,8 @@ const Chatbox = () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          model: "google:gemini-flash-experimental",
-          messages: [
-            { role: "system", content: "Respond in Pirate English." },
-            { role: "user", content: input }, // Send user input
-          ],
+          session_id: sessionId, // Include session ID
+          prompt: input, // Send user input
         }),
       });
 
