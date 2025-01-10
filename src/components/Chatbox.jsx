@@ -6,47 +6,49 @@ const Chatbox = () => {
   const [loading, setLoading] = useState(false);
   const [sessionId, setSessionId] = useState(null);
 
-  const API_URL = import.meta.env.VITE_API_URL; // Dynamically load the API URL
+  const API_URL = import.meta.env.VITE_API_URL; // Backend API URL
 
-  // Generate or retrieve session ID on component mount
   useEffect(() => {
-    let storedSessionId = localStorage.getItem("session_id");
-    if (!storedSessionId) {
-      storedSessionId = crypto.randomUUID(); // Generate a new UUID
-      localStorage.setItem("session_id", storedSessionId);
-    }
-    setSessionId(storedSessionId);
+    // Generate a unique session ID when the component mounts
+    const generateSessionId = () => {
+      return Math.random().toString(36).substring(2, 15) + 
+             Math.random().toString(36).substring(2, 15);
+    };
+
+    setSessionId(generateSessionId());
   }, []);
 
   const sendMessage = async () => {
     if (!input.trim() || !sessionId) return;
 
-    // Add user message to chat
+    // Add user message to the chat
     const userMessage = { sender: "user", text: input };
     setMessages((prev) => [...prev, userMessage]);
     setInput("");
     setLoading(true);
 
     try {
-      // Call the LLM backend API
-      const response = await fetch(API_URL, {
+      // Call the backend API
+      const response = await fetch(`${API_URL}`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
-          session_id: sessionId, // Include session ID
-          prompt: input, // Send user input
+          session_id: sessionId,
+          prompt: input,
         }),
       });
 
       const data = await response.json();
 
-      // Add bot response to chat
+      // Add bot response to the chat
       const botMessage = { sender: "bot", text: data.response };
       setMessages((prev) => [...prev, botMessage]);
     } catch (error) {
       console.error("Error querying LLM:", error);
 
-      // Add an error message to chat
+      // Add an error message to the chat
       const errorMessage = {
         sender: "bot",
         text: "Sorry, something went wrong. Please try again later.",
