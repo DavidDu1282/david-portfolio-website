@@ -29,7 +29,7 @@ const Chatbox = () => {
 
     try {
       // Call the backend API
-      const response = await fetch(`/api/llm/chat`, {
+      const response = await fetch(`/api/llm/query_and_chat`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
