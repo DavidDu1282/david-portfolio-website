@@ -6,7 +6,7 @@ const Chatbox = () => {
   const [loading, setLoading] = useState(false);
   const [sessionId, setSessionId] = useState(null);
 
-  const API_URL = import.meta.env.VITE_API_URL; // Backend API URL
+  const API_URL = import.meta.env.VITE_API_URL || ""
 
   useEffect(() => {
     // Generate a unique session ID when the component mounts
@@ -29,7 +29,7 @@ const Chatbox = () => {
 
     try {
       // Call the backend API
-      const response = await fetch(`/api/llm/query_and_chat`, {
+      const response = await fetch(`${API_URL}/api/llm/chat`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
