@@ -6,13 +6,15 @@ const Chatbox = () => {
   const [loading, setLoading] = useState(false);
   const [sessionId, setSessionId] = useState(null);
 
-  const API_URL = import.meta.env.VITE_API_URL || ""
+  const API_URL = import.meta.env.VITE_API_URL || "";
 
   useEffect(() => {
     // Generate a unique session ID when the component mounts
     const generateSessionId = () => {
-      return Math.random().toString(36).substring(2, 15) + 
-             Math.random().toString(36).substring(2, 15);
+      return (
+        Math.random().toString(36).substring(2, 15) +
+        Math.random().toString(36).substring(2, 15)
+      );
     };
 
     setSessionId(generateSessionId());
@@ -39,30 +41,22 @@ const Chatbox = () => {
           prompt: input,
         }),
       });
-    
+
       // Check if the response is okay (status 200-299)
       if (!response.ok) {
         const errorText = await response.text();
         console.error("Error from backend:", errorText);
         throw new Error(`Backend returned status ${response.status}`);
       }
-    
+
       // Parse the JSON response
       const data = await response.json();
-    
+
       // Add bot response to the chat
       const botMessage = { sender: "bot", text: data.response };
       setMessages((prev) => [...prev, botMessage]);
     } catch (error) {
-      console.error("Error querying LLM:", error);
-      // Add an error message to the chat
-      const errorMessage = {
-        sender: "bot",
-        text: "Sorry, something went wrong. Please try again later.",
-      };
-      setMessages((prev) => [...prev, errorMessage]);
-    }
-    
+      console.error("Error querying LLM:", error.message || error);
 
       // Add an error message to the chat
       const errorMessage = {
@@ -71,7 +65,7 @@ const Chatbox = () => {
       };
       setMessages((prev) => [...prev, errorMessage]);
     } finally {
-      setLoading(false);
+      setLoading(false); // Hide loading indicator
     }
   };
 
