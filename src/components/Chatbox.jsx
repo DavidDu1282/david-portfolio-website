@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import ReactMarkdown from "react-markdown";
 
 const Chatbox = () => {
   const [messages, setMessages] = useState([]);
@@ -94,7 +95,7 @@ const Chatbox = () => {
                   : "bg-gray-200 dark:bg-gray-700 dark:text-gray-200"
               }`}
             >
-              {msg.text}
+              <ReactMarkdown>{msg.text}</ReactMarkdown>
             </div>
           </div>
         ))}
